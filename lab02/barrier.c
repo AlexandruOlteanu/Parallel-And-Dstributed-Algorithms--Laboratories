@@ -3,7 +3,7 @@
 #include <pthread.h>
 
 #define NUM_THREADS 2
-
+pthread_barrier_t barrier;
 void *f(void *arg)
 {
 	int thread_id = *(int *)arg;
@@ -11,11 +11,11 @@ void *f(void *arg)
 	if (thread_id == 1) {
 		printf("1\n");
 	}
-
+pthread_barrier_wait(&barrier);
 	if (thread_id == 0) {
 		printf("2\n");
 	}
-
+	
 	pthread_exit(NULL);
 }
 
@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 	void *status;
 	pthread_t threads[NUM_THREADS];
 	int arguments[NUM_THREADS];
-
+	pthread_barrier_init(&barrier, NULL, NUM_THREADS);
 	for (i = 0; i < NUM_THREADS; i++) {
 		arguments[i] = i;
 		r = pthread_create(&threads[i], NULL, f, &arguments[i]);
@@ -44,6 +44,6 @@ int main(int argc, char **argv)
 			exit(-1);
 		}
 	}
-
+	pthread_barrier_destroy(&barrier);
 	return 0;
 }
